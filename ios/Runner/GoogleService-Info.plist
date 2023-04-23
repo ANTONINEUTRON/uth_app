@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>326259512296-h653lupgj8vgr48720uba3ramdkplb1u.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.326259512296-h653lupgj8vgr48720uba3ramdkplb1u</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCMJtrH68ttEqDvX9SfM3oZJmgRq1vhuFs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>326259512296</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.neutron.uth.uthApp</string>
+	<key>PROJECT_ID</key>
+	<string>uth-drug-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>uth-drug-app.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:326259512296:ios:72cb31eb2a89852e38ca5d</string>
+</dict>
+</plist>

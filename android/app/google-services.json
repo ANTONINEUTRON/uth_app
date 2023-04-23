@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "326259512296",
+    "project_id": "uth-drug-app",
+    "storage_bucket": "uth-drug-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326259512296:android:a7c16f99beac9e8d38ca5d",
+        "android_client_info": {
+          "package_name": "com.neutron.uth.uth_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326259512296-7h4e5kmqvegek1tbe2d2229df0d5l2p7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNCOtNtf0PnE8VyAkjtMbOvyBwwSEetkc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326259512296-7h4e5kmqvegek1tbe2d2229df0d5l2p7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
