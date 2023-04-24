@@ -10,4 +10,11 @@ class FirestoreService{
     var docSnapshot = await db.collection("drugs").add(drug.toJson());
     return docSnapshot.id;
   }
+
+  Future<Drug> getDrugDetails(String id) async{
+    var docRef = await db.collection("drugs")
+        .doc(id)
+        .get();
+    return Drug.fromJson(docRef.data()!);
+  }
 }

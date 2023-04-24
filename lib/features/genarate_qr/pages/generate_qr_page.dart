@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uth_app/features/history/pages/view_qr_page.dart';
 import 'package:uth_app/service/firestore_service.dart';
 import 'package:uth_app/service/storage_service.dart';
 import 'package:uth_app/shared/models/drug.dart';
@@ -20,8 +21,8 @@ class GenerateQRPage extends StatefulWidget {
 
 class _GenerateQRPageState extends State<GenerateQRPage> {
   String? drugName;
-  DateTime expiryDate = DateTime.now();
-  DateTime manufacturingDate = DateTime.now();
+  DateTime? expiryDate = DateTime.now();
+  DateTime? manufacturingDate = DateTime.now();
   String? batchNumber;
   String? dosage;
   String? storingCondition;
@@ -92,7 +93,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                     onPressed: (){
                       showDatePicker(
                           context: context,
-                          initialDate: DateTime(2020),
+                          initialDate: DateTime.now(),
                           firstDate: DateTime(2010),
                           lastDate: DateTime(2100)
                       ).then((value){
@@ -104,11 +105,11 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                     child: Row(
                       children: [
                         Text(
-                            manufacturingDate.isBefore(DateTime.now())
+                            manufacturingDate == null
                                 ? "Manufacture Date"
-                                : DateFormat('MMM dd y').format(manufacturingDate)
+                                : DateFormat('MMM dd y').format(manufacturingDate  ?? DateTime.now())
                         ),
-                        manufacturingDate.isBefore(DateTime.now())
+                        manufacturingDate == null
                             ? Icon(Icons.calendar_today)
                             : Icon(Icons.edit)
                       ],
@@ -131,11 +132,11 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                     child: Row(
                       children: [
                         Text(
-                            expiryDate.isBefore(DateTime.now())
+                            expiryDate == null
                                 ? "Expiry Date"
-                                : DateFormat('MMM dd y').format(expiryDate)
+                                : DateFormat('MMM dd y').format(expiryDate!)
                         ),
-                        expiryDate.isBefore(DateTime.now())
+                        expiryDate == null
                             ? Icon(Icons.calendar_today)
                             : Icon(Icons.edit)
                       ],
@@ -153,8 +154,8 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                       .saveDrug(
                         Drug(
                           drugName: drugName,
-                          expiryDate: expiryDate,
-                          manufacturingDate: manufacturingDate,
+                          expiryDate: expiryDate ?? DateTime.now(),
+                          manufacturingDate: manufacturingDate  ?? DateTime.now(),
                           batchNumber: batchNumber,
                           dosage: dosage,
                           storingCondition: storingCondition
@@ -178,6 +179,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                                       if(hasFileUpload){
                                         //take user to next page
                                         alert(context, "Everything worked");
+                                        Navigator.push(context, ViewQrPage.route);
                                       }else{
                                         alert(context, "An Error occured while generating the QR Code");
                                       }
@@ -208,8 +210,6 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
   bool inputsAreValid() {
     if(drugName?.isEmpty ?? true){
       return showError("Drug Name can not be left blank");
-    }else if(expiryDate.isBefore(manufacturingDate)){
-      return showError("Invallid Expiry Date");
     }else if(batchNumber?.isEmpty ?? true){
       return showError("Batch Number cannot be Empty");
     }else if(dosage?.isEmpty ?? true) {
