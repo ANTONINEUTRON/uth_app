@@ -10,9 +10,9 @@ import 'package:uth_app/shared/models/drug.dart';
 import '../widgets/drug_desc.dart';
 
 class ViewQrPage extends StatelessWidget {
-  static var route = MaterialPageRoute(builder: (context)=>const ViewQrPage());
+  static MaterialPageRoute route(String id) => MaterialPageRoute(builder: (context)=>ViewQrPage(id: id,));
 
-  const ViewQrPage({Key? key, this.id = "tUz72mAuvI6Egy2fTxwH"}) : super(key: key);
+  const ViewQrPage({Key? key, required this.id}) : super(key: key);
   final String id;
 
   @override

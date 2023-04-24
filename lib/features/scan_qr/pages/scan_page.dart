@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:uth_app/features/history/pages/view_qr_page.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({Key? key}) : super(key: key);
@@ -27,14 +28,25 @@ class _ScanPageState extends State<ScanPage> {
               key: qrKey,
             ),
           ),
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: (result != null)
-                  ? Text(
-                  'Barcode Type: ${result!.format}   Data: ${result!.code}')
-                  : Text('Scan a code'),
-            ),
+          Center(
+            child: IconButton(
+              icon: const Icon(Icons.qr_code_scanner, size: 35,),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Center(child: Text("Scanned Successfully..."))
+                  )
+                );
+                if(result != null){
+                  Navigator.push(context, ViewQrPage.route(result!.code ?? ""));
+                }
+              },
+              color: Colors.blue.shade900,
+            )
+            // child: (result != null)
+            //     ? Text(
+            //     'Barcode Type: ${result!.format}   Data: ${result!.code}')
+            //     : Text('Scan a code'),
           )
         ],
       ),

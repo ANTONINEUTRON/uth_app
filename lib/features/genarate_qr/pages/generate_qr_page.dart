@@ -21,8 +21,8 @@ class GenerateQRPage extends StatefulWidget {
 
 class _GenerateQRPageState extends State<GenerateQRPage> {
   String? drugName;
-  DateTime? expiryDate = DateTime.now();
-  DateTime? manufacturingDate = DateTime.now();
+  DateTime? expiryDate;
+  DateTime? manufacturingDate;
   String? batchNumber;
   String? dosage;
   String? storingCondition;
@@ -170,18 +170,16 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                             getApplicationDocumentsDirectory()
                                 .then((appDocDir){
                                     File qrCodeFile = File('${appDocDir.path}/barcode.png');
-                                    print("FILE PATH IS "+qrCodeFile.path);
                                     qrCodeFile.writeAsBytesSync(Imaage.encodePng(image));
-                                    print("FIle is filed");
                                     StorageService()
                                         .saveFile(qrCodeFile, docId)
                                         .then((hasFileUpload) {
                                       if(hasFileUpload){
                                         //take user to next page
                                         alert(context, "Everything worked");
-                                        Navigator.push(context, ViewQrPage.route);
+                                        Navigator.push(context, ViewQrPage.route(docId));
                                       }else{
-                                        alert(context, "An Error occured while generating the QR Code");
+                                        alert(context, "An Error occurred while generating the QR Code");
                                       }
                                     });
                                 });

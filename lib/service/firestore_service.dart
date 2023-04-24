@@ -17,4 +17,12 @@ class FirestoreService{
         .get();
     return Drug.fromJson(docRef.data()!);
   }
+
+  Future<List<String>> getAllDrugsId() async{
+    var querySnapshot = await db.collection("drugs").get();
+
+    return querySnapshot.docs.map((docSnapshot){
+      return docSnapshot.id;
+    }).toList();
+  }
 }
