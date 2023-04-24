@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uth_app/service/firestore_service.dart';
+import 'package:uth_app/service/storage_service.dart';
+import 'package:uth_app/shared/models/drug.dart';
+import 'package:barcode_image/barcode_image.dart';
+import 'package:image/image.dart' as Imaage;
+import 'dart:io';
+
+
+import '../../../shared/widgets/error_text_widget.dart';
 
 class GenerateQRPage extends StatefulWidget {
   const GenerateQRPage({Key? key}) : super(key: key);
@@ -15,17 +25,22 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
   String? batchNumber;
   String? dosage;
   String? storingCondition;
+  String _errorMsg = '';
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10, left:8, right:8),
+      padding: EdgeInsets.only(top: 10, left:8, right:8,
+        bottom: getBottomPaddingForKeyboardToShow(
+            MediaQuery.of(context).viewInsets.bottom)),
       child: ListView(
         children: [
           Text(
               "Generate QR Code",
             style: Theme.of(context).textTheme.headline5,
           ),
+          const SizedBox(height: 10,),
+          ErrorTextWidget(errorMsg: _errorMsg),
           const SizedBox(height: 10,),
           TextField(
             onChanged: (value)=>setState(() {
@@ -37,26 +52,6 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             ),
           ),
           const SizedBox(height: 5,),
-          // TextField(
-          //   onChanged: (value)=>setState(() {
-          //     expiryDate = value;
-          //   }),
-          //   decoration: InputDecoration(
-          //     border: OutlineInputBorder(),
-          //     labelText: "Expiry Date"
-          //   ),
-          // ),
-          // const SizedBox(height: 5,),
-          // TextField(
-          //   onChanged: (value)=>setState(() {
-          //     manufacturingDate = value;
-          //   }),
-          //   decoration: InputDecoration(
-          //     border: OutlineInputBorder(),
-          //     labelText: "Manufacture Date"
-          //   ),
-          // ),
-          // const SizedBox(height: 5,),
           TextField(
             onChanged: (value)=>setState(() {
               batchNumber = value;
@@ -97,8 +92,8 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                     onPressed: (){
                       showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          initialDate: DateTime(2020),
+                          firstDate: DateTime(2010),
                           lastDate: DateTime(2100)
                       ).then((value){
                         setState((){
@@ -111,7 +106,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                         Text(
                             manufacturingDate.isBefore(DateTime.now())
                                 ? "Manufacture Date"
-                                : DateFormat('E, MMM dd y').format(manufacturingDate)
+                                : DateFormat('MMM dd y').format(manufacturingDate)
                         ),
                         manufacturingDate.isBefore(DateTime.now())
                             ? Icon(Icons.calendar_today)
@@ -125,7 +120,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                       showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
+                          firstDate: DateTime(2010),
                           lastDate: DateTime(2100)
                       ).then((value){
                         setState((){
@@ -138,7 +133,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                         Text(
                             expiryDate.isBefore(DateTime.now())
                                 ? "Expiry Date"
-                                : DateFormat('E, MMM dd y').format(expiryDate)
+                                : DateFormat('MMM dd y').format(expiryDate)
                         ),
                         expiryDate.isBefore(DateTime.now())
                             ? Icon(Icons.calendar_today)
@@ -152,6 +147,50 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
           ElevatedButton(
               onPressed: (){
                 //generate and save qr code
+                //validate input
+                if(inputsAreValid()) {
+                  FirestoreService()
+                      .saveDrug(
+                        Drug(
+                          drugName: drugName,
+                          expiryDate: expiryDate,
+                          manufacturingDate: manufacturingDate,
+                          batchNumber: batchNumber,
+                          dosage: dosage,
+                          storingCondition: storingCondition
+                        )
+                      ).then(
+                          (docId){
+                            //Generate QR code from ID
+                            final image = Imaage.Image(300,120);
+                            Imaage.fill(image, Imaage.getColor(255, 255, 255));
+                            drawBarcode(image, Barcode.qrCode(), docId, font: Imaage.arial_24);
+                            // Save the image
+                            getApplicationDocumentsDirectory()
+                                .then((appDocDir){
+                                    File qrCodeFile = File('${appDocDir.path}/barcode.png');
+                                    print("FILE PATH IS "+qrCodeFile.path);
+                                    qrCodeFile.writeAsBytesSync(Imaage.encodePng(image));
+                                    print("FIle is filed");
+                                    StorageService()
+                                        .saveFile(qrCodeFile, docId)
+                                        .then((hasFileUpload) {
+                                      if(hasFileUpload){
+                                        //take user to next page
+                                        alert(context, "Everything worked");
+                                      }else{
+                                        alert(context, "An Error occured while generating the QR Code");
+                                      }
+                                    });
+                                });
+
+                          },onError: (e){
+                              alert(context, "An Error Occured\n${e.message}");
+                          }
+                      );
+                  //create object
+                  //save object to firebase
+                }
               },
               child: Text("Generate QR Code")
           )
@@ -159,4 +198,35 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
       ),
     );
   }
+
+  void alert(BuildContext context, message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message))
+    );
+  }
+
+  bool inputsAreValid() {
+    if(drugName?.isEmpty ?? true){
+      return showError("Drug Name can not be left blank");
+    }else if(expiryDate.isBefore(manufacturingDate)){
+      return showError("Invallid Expiry Date");
+    }else if(batchNumber?.isEmpty ?? true){
+      return showError("Batch Number cannot be Empty");
+    }else if(dosage?.isEmpty ?? true) {
+      return showError("Batch Number cannot be Empty");
+    }else if(storingCondition?.isEmpty ?? true){
+      storingCondition = "";
+    }
+    return true;
+  }
+
+  bool showError(String msg) {
+    setState(() {
+      _errorMsg = msg;
+    });
+    return false;
+  }
+
+  double getBottomPaddingForKeyboardToShow(double bottomPadding)
+    => bottomPadding > 50 ? bottomPadding - 50 : bottomPadding;
 }
