@@ -7,6 +7,8 @@ import '../../scan_qr/pages/scan_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
+  static var route = MaterialPageRoute(builder: (context)=>HomePage());
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
